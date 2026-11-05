@@ -39,20 +39,25 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onOpenSidebar }) => {
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white" />
         </div>
 
-        <div className="flex items-center space-x-2 pl-2 border-l border-slate-200">
+        <div className="flex items-center space-x-2.5 pl-2 border-l border-slate-200">
           <div
-            className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600"
-            title={user?.fullName || 'Staff User'}
+            className="w-8 h-8 rounded-full bg-[#0d4722] text-white flex items-center justify-center font-bold text-xs"
+            title="Finance Officer"
           >
-            <UserIcon className="w-4 h-4 text-slate-500" />
+            FO
+          </div>
+
+          <div className="hidden sm:block text-left">
+            <p className="text-xs font-bold text-slate-900 leading-tight">Finance Officer</p>
+            <p className="text-[10px] text-emerald-700 font-semibold leading-tight">All Permissions</p>
           </div>
 
           <button
             onClick={logout}
-            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors text-xs flex items-center gap-1"
+            className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors text-xs flex items-center gap-1 ml-1"
             title="Sign Out"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@ export interface User {
   id: string;
   username: string;
   fullName: string;
-  role: 'ADMIN' | 'FINANCE_OFFICER';
+  role: string;
 }
 
 export interface Payment {
@@ -63,4 +63,3 @@ export interface Stats {
   sentAlerts: number;
   failedAlerts: number;
 }
-

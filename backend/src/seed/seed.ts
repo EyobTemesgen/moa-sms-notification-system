@@ -2,6 +2,7 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as bcrypt from 'bcryptjs';
 import * as dotenv from 'dotenv';
+import { eq } from 'drizzle-orm';
 import * as schema from '../database/schema';
 
 dotenv.config();
@@ -15,39 +16,43 @@ async function runSeed() {
   const db = drizzle(client, { schema });
 
   try {
-    console.log('Seeding initial data...');
+    console.log('Seeding initial data (Single user: finance with all privileges)...');
 
-    // 1. Seed Users
-    const adminPassword = await bcrypt.hash('admin123', 10);
+    // 1. Delete legacy 'admin' user if present
+    await db.delete(schema.users).where(eq(schema.users.username, 'admin' as any));
+
+    // 2. Seed single 'finance' user with all privileges
     const financePassword = await bcrypt.hash('finance123', 10);
 
-    const existingAdmin = await db.query.users.findFirst({
-      where: (u: any, { eq }: any) => eq(u.username, 'admin'),
+    const existingFinance = await db.query.users.findFirst({
+      where: (u: any, { eq }: any) => eq(u.username, 'finance'),
     });
 
-    if (!existingAdmin) {
-      await db.insert(schema.users).values([
-        {
-          username: 'admin',
-          passwordHash: adminPassword,
-          fullName: 'MOA System Administrator',
-          role: 'ADMIN',
-          phone: '+251911000000',
-        },
-        {
-          username: 'finance',
-          passwordHash: financePassword,
-          fullName: 'Senior Finance Officer',
-          role: 'FINANCE_OFFICER',
-          phone: '+251912000000',
-        },
-      ] as any);
-      console.log('✓ Created users: admin (admin123), finance (finance123)');
+    if (!existingFinance) {
+      await db.insert(schema.users).values({
+        username: 'finance',
+        passwordHash: financePassword,
+        fullName: 'Ministry Finance Officer',
+        role: 'FINANCE',
+        phone: '+251912000000',
+        isActive: true,
+      } as any);
+      console.log('✓ Created single user: finance (finance123) with all privileges');
     } else {
-      console.log('ℹ Users already exist');
+      // Update existing to ensure active and correct role
+      await db
+        .update(schema.users)
+        .set({
+          fullName: 'Ministry Finance Officer',
+          role: 'FINANCE',
+          passwordHash: financePassword,
+          isActive: true,
+        } as any)
+        .where(eq(schema.users.username, 'finance' as any));
+      console.log('✓ Updated single user: finance with full privileges');
     }
 
-    // 2. Seed Default Settings (Threshold = 20,000,000 ETB)
+    // 3. Seed Default Settings (Threshold = 20,000,000 ETB)
     const existingSettings = await db.query.systemSettings.findFirst();
     if (!existingSettings) {
       await db.insert(schema.systemSettings).values({
@@ -62,7 +67,7 @@ async function runSeed() {
       console.log('ℹ Settings already initialized');
     }
 
-    // 3. Seed Default Alert Recipients
+    // 4. Seed Default Alert Recipients
     const recipients = await db.query.alertRecipients.findMany();
     if (recipients.length === 0) {
       await db.insert(schema.alertRecipients).values([
@@ -90,7 +95,7 @@ async function runSeed() {
       console.log('ℹ Alert recipients already present');
     }
 
-    console.log('Seeding completed successfully!');
+    console.log('Single user setup and seeding completed successfully!');
   } catch (error) {
     console.error('Error during seeding:', error);
   } finally {

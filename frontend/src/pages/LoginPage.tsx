@@ -83,7 +83,7 @@ export const LoginPage: React.FC = () => {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Staff Sign In</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Authenticate with your ministry credentials to access payment alerts.
+              Authenticate to manage payments, notification rules, and gateway configurations.
             </p>
           </div>
 
@@ -97,7 +97,7 @@ export const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Staff Username / Email
+                Username / Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -109,7 +109,7 @@ export const LoginPage: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white transition-all outline-none"
-                  placeholder="e.g. finance or admin"
+                  placeholder="finance"
                 />
               </div>
             </div>
@@ -165,10 +165,10 @@ export const LoginPage: React.FC = () => {
             </button>
           </form>
 
-          {/* Quick Demo Credentials */}
+          {/* Single User Access Info */}
           <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>Demo: <strong className="text-slate-700">finance</strong> / <strong className="text-slate-700">finance123</strong></span>
-            <span>Admin: <strong className="text-slate-700">admin</strong> / <strong className="text-slate-700">admin123</strong></span>
+            <span>Authorized User: <strong className="text-slate-800 font-mono">finance</strong> / <strong className="text-slate-800 font-mono">finance123</strong></span>
+            <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Full Access</span>
           </div>
         </div>
       </div>
