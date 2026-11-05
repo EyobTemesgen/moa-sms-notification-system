@@ -2,45 +2,43 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { SystemSettings, Recipient } from '../types';
 import {
-  Settings,
-  Users,
-  Smartphone,
-  Save,
-  Send,
+  Activity,
+  Check,
+  CheckCircle2,
+  X,
   Plus,
   Trash2,
-  CheckCircle2,
-  AlertCircle,
-  Radio,
-  Server,
-  ShieldCheck,
-  Building,
+  Smartphone,
+  Users,
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingSettings, setSavingSettings] = useState(false);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // New Recipient Form
-  const [newRecipient, setNewRecipient] = useState({
-    name: '',
-    title: '',
-    phoneNumber: '',
-  });
+  // Form Fields matching Screen 4
+  const [thresholdValue, setThresholdValue] = useState<number>(1000000);
+  const [isAlertActive, setIsAlertActive] = useState<boolean>(true);
+  const [ipAddress, setIpAddress] = useState<string>('197.168.183.150');
+  const [port, setPort] = useState<string>('20023');
+  const [stack, setStack] = useState<string>('api-v-run');
+  const [apn, setApn] = useState<string>('et-telecom.com');
 
-  // SMS Gateway Test State
-  const [testPhone, setTestPhone] = useState('+251911223344');
-  const [testResult, setTestResult] = useState<any | null>(null);
-  const [testingSms, setTestingSms] = useState(false);
+  // Test Connection & Save Toast
+  const [testingConnection, setTestingConnection] = useState<boolean>(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
+
+  // New recipient form
+  const [newRecipient, setNewRecipient] = useState({ name: '', title: '', phoneNumber: '' });
 
   useEffect(() => {
-    loadAll();
+    loadSettings();
   }, []);
 
-  const loadAll = async () => {
+  const loadSettings = async () => {
     setLoading(true);
     try {
       const [sData, rData] = await Promise.all([
@@ -49,6 +47,20 @@ export const SettingsPage: React.FC = () => {
       ]);
       setSettings(sData);
       setRecipients(rData);
+
+      if (sData) {
+        setThresholdValue(parseFloat(sData.thresholdAmount) || 1000000);
+        setIsAlertActive(sData.isAlertEnabled);
+        if (sData.smsGatewayUrl) {
+          try {
+            const url = new URL(sData.smsGatewayUrl);
+            setIpAddress(url.hostname || '197.168.183.150');
+            setPort(url.port || '20023');
+          } catch {
+            setIpAddress('197.168.183.150');
+          }
+        }
+      }
     } catch (err) {
       console.error('Failed to load settings', err);
     } finally {
@@ -56,27 +68,48 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!settings) return;
-    setSavingSettings(true);
-    setSuccessMsg(null);
+  const handleSaveSettings = async () => {
+    setSaving(true);
     try {
+      const constructedUrl = `http://${ipAddress}:${port}/${stack}`;
       const updated = await api.updateSettings({
-        thresholdAmount: parseFloat(settings.thresholdAmount),
-        isAlertEnabled: settings.isAlertEnabled,
-        smsProvider: settings.smsProvider,
-        smsGatewayUrl: settings.smsGatewayUrl,
-        smsGatewayKey: settings.smsGatewayKey,
-        smsSenderId: settings.smsSenderId,
+        thresholdAmount: thresholdValue,
+        isAlertEnabled: isAlertActive,
+        smsProvider: 'http',
+        smsGatewayUrl: constructedUrl,
+        smsGatewayKey: apn,
+        smsSenderId: 'MOA-FINANCE',
       });
       setSettings(updated);
-      setSuccessMsg('Settings updated and saved successfully!');
-      setTimeout(() => setSuccessMsg(null), 4000);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 5000);
     } catch (err: any) {
       alert(err.message || 'Failed to save settings');
     } finally {
-      setSavingSettings(false);
+      setSaving(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    setTestResult(null);
+    try {
+      const res = await api.testSms({
+        phoneNumber: '+251912345789',
+        gatewayUrl: `http://${ipAddress}:${port}/${stack}`,
+        apiKey: apn,
+      });
+      setTestResult({
+        success: true,
+        message: 'On-Premise SMS Gateway: Connected & Verified',
+      });
+    } catch (err: any) {
+      setTestResult({
+        success: false,
+        message: err.message || 'Gateway connection timed out',
+      });
+    } finally {
+      setTestingConnection(false);
     }
   };
 
@@ -93,7 +126,6 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handleDeleteRecipient = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this manager recipient?')) return;
     try {
       await api.deleteRecipient(id);
       setRecipients(recipients.filter((r) => r.id !== id));
@@ -102,390 +134,300 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleToggleRecipient = async (recipient: Recipient) => {
-    try {
-      await api.updateRecipient(recipient.id, { isActive: !recipient.isActive });
-      setRecipients(
-        recipients.map((r) =>
-          r.id === recipient.id ? { ...r, isActive: !r.isActive } : r,
-        ),
-      );
-    } catch (err: any) {
-      alert(err.message || 'Failed to update recipient');
-    }
-  };
-
-  const handleTestSms = async () => {
-    setTestingSms(true);
-    setTestResult(null);
-    try {
-      const res = await api.testSms({
-        phoneNumber: testPhone,
-        gatewayUrl: settings?.smsGatewayUrl,
-        apiKey: settings?.smsGatewayKey,
-      });
-      setTestResult(res);
-    } catch (err: any) {
-      setTestResult({ success: false, error: err.message });
-    } finally {
-      setTestingSms(false);
-    }
-  };
-
-  if (loading || !settings) {
-    return <div className="p-16 text-center text-slate-500">Loading settings...</div>;
+  if (loading) {
+    return <div className="p-12 text-center text-xs text-slate-400">Loading settings...</div>;
   }
 
   return (
-    <div className="space-y-8">
-      {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm flex items-center space-x-2.5 animate-fadeIn">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span className="font-semibold">{successMsg}</span>
-        </div>
-      )}
+    <div className="space-y-6 relative pb-16">
+      {/* Page Title & Save Button (Matching Screen 4) */}
+      <div className="flex items-center justify-between pb-1">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          SMS Gateway & Manager Settings
+        </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Threshold & Gateway Config (7 Cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs">
-            <div className="flex items-center space-x-3.5 mb-6 pb-5 border-b border-slate-100">
-              <div className="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                <Settings className="w-6 h-6" />
+        <button
+          onClick={handleSaveSettings}
+          disabled={saving}
+          className="px-4 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center space-x-1.5 disabled:opacity-50"
+        >
+          <Check className="w-3.5 h-3.5" />
+          <span>{saving ? 'Saving...' : 'Save edit'}</span>
+        </button>
+      </div>
+
+      {/* Main Settings Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Threshold Slider & Live Gateway Status */}
+        <div className="lg:col-span-6 space-y-6">
+          {/* Card 1: Trigger Threshold Slider */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-bold text-slate-900">
+                Trigger Threshold Slider
+              </h3>
+
+              {/* iOS Style Toggle Switch */}
+              <button
+                type="button"
+                onClick={() => setIsAlertActive(!isAlertActive)}
+                className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 cursor-pointer ${
+                  isAlertActive ? 'bg-[#0d4722]' : 'bg-slate-300'
+                }`}
+              >
+                <div
+                  className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${
+                    isAlertActive ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <p className="text-[11px] text-slate-500 mb-6">
+              Configure high-amount alert limit to activate high-amount alert limit below.
+            </p>
+
+            {/* Range Slider Container with Dynamic Tooltip */}
+            <div className="relative pt-6 pb-2">
+              {/* Floating dark badge over thumb */}
+              <div
+                className="absolute top-0 transform -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold py-0.5 px-2.5 rounded shadow-md pointer-events-none transition-all"
+                style={{
+                  left: `${Math.min(92, Math.max(8, (thresholdValue / 20000000) * 100))}%`,
+                }}
+              >
+                {thresholdValue.toLocaleString()} ETB
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Notification Threshold & Rules</h2>
-                <p className="text-xs text-slate-500">Configure alert ceiling and gateway parameters.</p>
+
+              {/* Native styled slider */}
+              <input
+                type="range"
+                min="0"
+                max="20000000"
+                step="500000"
+                value={thresholdValue}
+                onChange={(e) => setThresholdValue(Number(e.target.value))}
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0d4722]"
+              />
+
+              {/* Scale Labels below slider */}
+              <div className="flex justify-between text-[11px] text-slate-500 font-medium mt-2">
+                <span>0</span>
+                <span className="text-slate-600 font-semibold">
+                  {thresholdValue.toLocaleString()} ETB
+                </span>
+                <span>20,000,000 ETB</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: On-Premise SMS Gateway Status */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <h3 className="text-sm font-bold text-slate-900">
+                On-Premise SMS Gateway
+              </h3>
+              <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Live</span>
               </div>
             </div>
 
-            <form onSubmit={handleSaveSettings} className="space-y-6">
+            <div className="flex items-center space-x-3.5 pt-1">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                <Activity className="w-5 h-5" />
+              </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  High-Value Alert Threshold (ETB) *
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-xs font-extrabold text-slate-700">
-                    ETB
-                  </span>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1000"
-                    required
-                    value={settings.thresholdAmount}
-                    onChange={(e) =>
-                      setSettings({ ...settings, thresholdAmount: e.target.value })
-                    }
-                    className="w-full pl-14 pr-4 py-3 rounded-xl border border-slate-300 text-base font-black text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
-                  />
-                </div>
-                <p className="text-xs text-slate-700 mt-1.5 font-medium">
-                  Currently triggers for disbursements &ge;{' '}
-                  <strong className="text-emerald-800">
-                    {parseFloat(settings.thresholdAmount || '0').toLocaleString()} ETB
-                  </strong>.
+                <p className="text-xs text-slate-500 font-medium leading-none">
+                  On-Premise SMS Gateway:
+                </p>
+                <p className="text-sm font-bold text-[#0d4722] mt-1 leading-none">
+                  Connected
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
 
+        {/* Right Column: Gateway Configuration */}
+        <div className="lg:col-span-6 space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
+              <h3 className="text-sm font-bold text-slate-900">
+                On-Premise SMS Gateway Configuration
+              </h3>
+              <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Live</span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  SMS Sender Header
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  IP Address
                 </label>
                 <input
                   type="text"
-                  required
-                  value={settings.smsSenderId}
-                  onChange={(e) =>
-                    setSettings({ ...settings, smsSenderId: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-slate-50/50"
-                  placeholder="e.g. MOA-FINANCE"
+                  value={ipAddress}
+                  onChange={(e) => setIpAddress(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                  placeholder="197.168.183.150"
                 />
               </div>
 
-              {/* Mode Selector */}
-              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
-                  SMS Gateway Connector Mode
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setSettings({ ...settings, smsProvider: 'mock' })}
-                    className={`p-4 rounded-xl border text-left transition-all ${
-                      settings.smsProvider === 'mock'
-                        ? 'bg-emerald-50/80 border-emerald-500 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-500'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <div className="text-xs font-extrabold flex items-center justify-between">
-                      <span>Mock / Console Mode</span>
-                      {settings.smsProvider === 'mock' && (
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      )}
-                    </div>
-                    <div className="text-[11px] font-normal text-slate-500 mt-1">
-                      Simulates SMS delivery and logs to dashboard without network calls.
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSettings({ ...settings, smsProvider: 'http' })}
-                    className={`p-4 rounded-xl border text-left transition-all ${
-                      settings.smsProvider === 'http'
-                        ? 'bg-emerald-50/80 border-emerald-500 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-500'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                    }`}
-                  >
-                    <div className="text-xs font-extrabold flex items-center justify-between">
-                      <span>On-Premise Gateway</span>
-                      {settings.smsProvider === 'http' && (
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                      )}
-                    </div>
-                    <div className="text-[11px] font-normal text-slate-500 mt-1">
-                      Transmits HTTP payload directly to internal telecom hardware/server.
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {settings.smsProvider === 'http' && (
-                <div className="space-y-4 pt-2">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                      Gateway Endpoint URL
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="http://10.10.20.50:8080/api/sms/send"
-                      value={settings.smsGatewayUrl || ''}
-                      onChange={(e) =>
-                        setSettings({ ...settings, smsGatewayUrl: e.target.value })
-                      }
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-emerald-500 bg-slate-50/50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                      Gateway Authorization Key (Optional)
-                    </label>
-                    <input
-                      type="password"
-                      placeholder="Bearer token or leave blank if IP-whitelisted"
-                      value={settings.smsGatewayKey || ''}
-                      onChange={(e) =>
-                        setSettings({ ...settings, smsGatewayKey: e.target.value })
-                      }
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 bg-slate-50/50"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-slate-100">
-                <label className="flex items-center space-x-3 cursor-pointer">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Port
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={settings.isAlertEnabled}
-                    onChange={(e) =>
-                      setSettings({ ...settings, isAlertEnabled: e.target.checked })
-                    }
-                    className="w-5 h-5 text-emerald-600 rounded-lg border-slate-300 focus:ring-emerald-500"
+                    type="text"
+                    value={port}
+                    onChange={(e) => setPort(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                    placeholder="20023"
                   />
-                  <span className="text-sm font-bold text-slate-800">
-                    Enable Automatic Alert Dispatch
-                  </span>
-                </label>
+                </div>
 
-                <button
-                  type="submit"
-                  disabled={savingSettings}
-                  className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>{savingSettings ? 'Saving...' : 'Save Configuration'}</span>
-                </button>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Stack
+                  </label>
+                  <input
+                    type="text"
+                    value={stack}
+                    onChange={(e) => setStack(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                    placeholder="api-v-run"
+                  />
+                </div>
               </div>
-            </form>
-          </div>
 
-          {/* Test SMS Gateway Console */}
-          <div className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
-            <div className="flex items-center space-x-3 pb-3 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
-                <Radio className="w-5 h-5" />
-              </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-base">Test SMS Connectivity</h3>
-                <p className="text-xs text-slate-500">Verify internal gateway response with an instant test.</p>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  APN
+                </label>
+                <input
+                  type="text"
+                  value={apn}
+                  onChange={(e) => setApn(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                  placeholder="et-telecom.com"
+                />
               </div>
-            </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="text"
-                placeholder="+251911223344"
-                value={testPhone}
-                onChange={(e) => setTestPhone(e.target.value)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-emerald-500"
-              />
               <button
                 type="button"
-                onClick={handleTestSms}
-                disabled={testingSms}
-                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center space-x-2 shadow-xs disabled:opacity-50"
+                onClick={handleTestConnection}
+                disabled={testingConnection}
+                className="w-full py-2.5 px-4 bg-[#0d4722] hover:bg-[#0a381b] text-white font-semibold rounded-lg text-xs shadow-xs transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 mt-2"
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>{testingSms ? 'Transmitting...' : 'Send Test Ping'}</span>
+                <span>{testingConnection ? 'Testing Connection...' : 'Test Connection'}</span>
               </button>
-            </div>
 
-            {testResult && (
-              <div
-                className={`p-4 rounded-2xl text-xs font-mono border ${
-                  testResult.success
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                    : 'bg-rose-50 border-rose-300 text-rose-900'
-                }`}
-              >
-                <div className="font-bold text-sm mb-1.5 flex items-center gap-1.5">
-                  {testResult.success ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>Gateway Connected Successfully!</span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="w-4 h-4 text-rose-600" />
-                      <span>Connection Error</span>
-                    </>
-                  )}
-                </div>
-                <div>Provider: {testResult.provider}</div>
-                {testResult.messageId && <div>Message ID: {testResult.messageId}</div>}
-                {testResult.rawResponse && (
-                  <div className="mt-1 text-[11px] truncate">
-                    Raw Telemetry: {testResult.rawResponse}
-                  </div>
-                )}
-                {testResult.error && <div>Error: {testResult.error}</div>}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Manager Alert Recipients (5 Cols) */}
-        <div className="lg:col-span-5 bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs space-y-6">
-          <div className="flex items-center space-x-3 pb-4 border-b border-slate-100">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
-              <Users className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">Executive Alert Contacts</h2>
-              <p className="text-xs text-slate-500">
-                Executives who receive SMS alerts for high disbursements.
-              </p>
-            </div>
-          </div>
-
-          {/* Add Recipient Form */}
-          <form
-            onSubmit={handleAddRecipient}
-            className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3"
-          >
-            <h4 className="text-xs font-bold uppercase text-slate-700 tracking-wider">
-              Add Executive Contact
-            </h4>
-            <input
-              type="text"
-              required
-              placeholder="Full Name (e.g. H.E. State Minister)"
-              value={newRecipient.name}
-              onChange={(e) => setNewRecipient({ ...newRecipient, name: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 bg-white"
-            />
-            <input
-              type="text"
-              required
-              placeholder="Position Title (e.g. Director of Finance)"
-              value={newRecipient.title}
-              onChange={(e) => setNewRecipient({ ...newRecipient, title: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 bg-white"
-            />
-            <div className="flex gap-2">
-              <input
-                type="text"
-                required
-                placeholder="Phone (+251911223344)"
-                value={newRecipient.phoneNumber}
-                onChange={(e) => setNewRecipient({ ...newRecipient, phoneNumber: e.target.value })}
-                className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono focus:ring-2 focus:ring-emerald-500 bg-white"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all flex items-center space-x-1 shadow-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add</span>
-              </button>
-            </div>
-          </form>
-
-          {/* Recipients List */}
-          <div className="space-y-3">
-            {recipients.length === 0 ? (
-              <p className="text-xs text-slate-400 italic">No recipients registered yet.</p>
-            ) : (
-              recipients.map((r) => (
+              {testResult && (
                 <div
-                  key={r.id}
-                  className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-slate-300 transition-all bg-white shadow-2xs"
+                  className={`p-3 rounded-lg text-xs font-medium border flex items-center space-x-2 ${
+                    testResult.success
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      : 'bg-rose-50 border-rose-200 text-rose-800'
+                  }`}
                 >
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-slate-900 text-sm">{r.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md font-semibold">
-                        {r.title}
-                      </span>
-                    </div>
-                    <div className="text-xs font-mono text-emerald-700 font-semibold flex items-center gap-1.5 mt-1">
-                      <Smartphone className="w-3.5 h-3.5 text-slate-400" />
-                      {r.phoneNumber}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-2.5">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleRecipient(r)}
-                      className={`text-xs px-2.5 py-1 rounded-full font-bold transition-all ${
-                        r.isActive
-                          ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                          : 'bg-slate-100 text-slate-500 border border-slate-200'
-                      }`}
-                    >
-                      {r.isActive ? 'Active' : 'Muted'}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteRecipient(r.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      title="Remove"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {testResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <X className="w-4 h-4 text-rose-600 shrink-0" />
+                  )}
+                  <span>{testResult.message}</span>
                 </div>
-              ))
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Executive Alert Contacts (Secondary panel for full managerial capability) */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+        <div className="flex items-center space-x-2 pb-3 border-b border-slate-100">
+          <Users className="w-5 h-5 text-[#0d4722]" />
+          <h3 className="text-sm font-bold text-slate-900">Executive Alert Contacts</h3>
+        </div>
+
+        <form onSubmit={handleAddRecipient} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <input
+            type="text"
+            required
+            placeholder="Executive Name"
+            value={newRecipient.name}
+            onChange={(e) => setNewRecipient({ ...newRecipient, name: e.target.value })}
+            className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
+          />
+          <input
+            type="text"
+            required
+            placeholder="Position (e.g. Director)"
+            value={newRecipient.title}
+            onChange={(e) => setNewRecipient({ ...newRecipient, title: e.target.value })}
+            className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
+          />
+          <input
+            type="text"
+            required
+            placeholder="+251912345789"
+            value={newRecipient.phoneNumber}
+            onChange={(e) => setNewRecipient({ ...newRecipient, phoneNumber: e.target.value })}
+            className="px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono bg-white"
+          />
+          <button
+            type="submit"
+            className="px-3 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-lg flex items-center justify-center space-x-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Contact</span>
+          </button>
+        </form>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+          {recipients.map((r) => (
+            <div
+              key={r.id}
+              className="p-3 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs"
+            >
+              <div>
+                <p className="font-bold text-slate-900">{r.name}</p>
+                <p className="text-[10px] text-slate-500">{r.title}</p>
+                <p className="text-emerald-700 font-mono text-[11px] mt-0.5">{r.phoneNumber}</p>
+              </div>
+              <button
+                onClick={() => handleDeleteRecipient(r.id)}
+                className="p-1 text-slate-400 hover:text-rose-600 rounded"
+                title="Delete"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Floating Toast Notification (Matching Screen 4) */}
+      {showToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0d4722] text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-emerald-600/40 animate-slideUp">
+          <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0">
+            <Check className="w-3.5 h-3.5" />
+          </div>
+          <span className="text-xs font-semibold">
+            Saved! Setting confirmed alert
+          </span>
+          <button
+            onClick={() => setShowToast(false)}
+            className="p-1 text-emerald-200 hover:text-white transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

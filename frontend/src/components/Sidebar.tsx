@@ -1,18 +1,14 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
-  CreditCard,
-  History,
+  LayoutGrid,
   Send,
+  History,
   Settings,
-  LogOut,
-  ShieldAlert,
-  Radio,
-  SlidersHorizontal,
-  ChevronRight,
-  User,
+  ChevronDown,
+  ChevronsLeft,
   X,
+  Sprout,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,185 +17,200 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const { user, logout } = useAuth();
-
-  const navItems = [
-    {
-      name: 'Record Payment',
-      path: '/',
-      icon: CreditCard,
-      description: 'Enter voucher & trigger alerts',
-    },
-    {
-      name: 'Payment Register',
-      path: '/history',
-      icon: History,
-      description: 'Full audit history & filters',
-    },
-    {
-      name: 'SMS Dispatch Logs',
-      path: '/sms-logs',
-      icon: Send,
-      description: 'Live delivery & retry monitor',
-    },
-    {
-      name: 'Settings & Contacts',
-      path: '/settings',
-      icon: Settings,
-      description: 'Threshold & executive numbers',
-    },
-  ];
+  const location = useLocation();
+  const [historyOpen, setHistoryOpen] = useState(
+    location.pathname === '/history' || location.pathname === '/sms-logs'
+  );
+  const [settingsOpen, setSettingsOpen] = useState(
+    location.pathname === '/settings'
+  );
 
   return (
     <>
       {/* Mobile Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 lg:hidden transition-opacity"
+          className="fixed inset-0 bg-slate-900/60 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-100 flex flex-col border-r border-slate-800/80 shadow-2xl transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-[#0d4722] text-white flex flex-col justify-between shadow-2xl transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Brand Header */}
-        <div className="p-6 pb-5 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center space-x-3.5">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 ring-1 ring-white/20">
-              <ShieldAlert className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-1.5">
-                <span className="font-extrabold text-base tracking-tight text-white">
-                  MOA <span className="text-emerald-400">ALERT</span>
-                </span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-semibold uppercase tracking-wider border border-emerald-500/30">
-                  SMS
-                </span>
+        <div>
+          {/* Top Brand Header */}
+          <div className="p-5 flex items-center justify-between border-b border-emerald-800/40">
+            <div className="flex items-center space-x-3">
+              <img
+                src="/moa-logo.png"
+                alt="MOA Logo"
+                className="w-10 h-10 object-contain rounded-full bg-white/10 p-0.5"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+              <div>
+                <h1 className="font-extrabold text-lg leading-tight tracking-tight">MOA</h1>
+                <p className="text-[11px] text-emerald-200/80 font-normal leading-none mt-0.5">
+                  Ministry of Agriculture
+                </p>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium">Ministry of Agriculture</p>
             </div>
+
+            <button
+              onClick={onClose}
+              className="p-1 rounded-md text-emerald-300/70 hover:text-white hover:bg-emerald-800/50 transition-colors"
+              title="Collapse Menu"
+            >
+              <ChevronsLeft className="w-4 h-4 hidden lg:block" />
+              <X className="w-5 h-5 lg:hidden" />
+            </button>
           </div>
 
-          {/* Close button for mobile */}
-          <button
-            onClick={onClose}
-            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+          {/* Navigation Links */}
+          <nav className="p-3.5 space-y-1.5 mt-2">
+            {/* Dashboard / Wizard */}
+            <NavLink
+              to="/"
+              onClick={onClose}
+              end
+              className={({ isActive }) =>
+                `flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-[#1e5631] text-white font-semibold shadow-xs'
+                    : 'text-emerald-100/90 hover:bg-emerald-800/40 hover:text-white'
+                }`
+              }
+            >
+              <LayoutGrid className="w-4 h-4 text-emerald-300" />
+              <span>Dashboard</span>
+            </NavLink>
 
-        {/* System Threshold Quick Pill */}
-        <div className="mx-4 mt-5 p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
+            {/* Send Notification */}
+            <NavLink
+              to="/"
+              onClick={onClose}
+              className="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-emerald-100/90 hover:bg-emerald-800/40 hover:text-white transition-all"
+            >
+              <Send className="w-4 h-4 text-emerald-300" />
+              <span>Send Notification</span>
+            </NavLink>
+
+            {/* History */}
             <div>
-              <p className="text-[11px] font-semibold text-slate-300">Active Alert Rule</p>
-              <p className="text-xs font-bold text-amber-400">&ge; 20,000,000 ETB</p>
+              <div className="flex items-center justify-between rounded-lg hover:bg-emerald-800/40 transition-all">
+                <NavLink
+                  to="/history"
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex-1 flex items-center space-x-3 px-3.5 py-2.5 text-sm font-medium transition-all ${
+                      isActive || location.pathname === '/sms-logs'
+                        ? 'bg-[#1e5631] text-white font-semibold rounded-lg'
+                        : 'text-emerald-100/90'
+                    }`
+                  }
+                >
+                  <History className="w-4 h-4 text-emerald-300" />
+                  <span>History</span>
+                </NavLink>
+                <button
+                  onClick={() => setHistoryOpen(!historyOpen)}
+                  className="px-2 py-2 text-emerald-300/80 hover:text-white"
+                  title="Toggle History Options"
+                >
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      historyOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {historyOpen && (
+                <div className="pl-9 pr-2 py-1 space-y-1 text-xs text-emerald-200">
+                  <NavLink
+                    to="/history"
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `block py-1.5 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
+                        isActive ? 'text-white font-semibold underline' : ''
+                      }`
+                    }
+                  >
+                    History & Audit Log
+                  </NavLink>
+                  <NavLink
+                    to="/sms-logs"
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `block py-1.5 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
+                        isActive ? 'text-white font-semibold underline' : ''
+                      }`
+                    }
+                  >
+                    SMS Gateway Dispatches
+                  </NavLink>
+                </div>
+              )}
             </div>
-          </div>
-          <div className="p-1.5 rounded-lg bg-slate-700/50 text-slate-300">
-            <Radio className="w-4 h-4 text-emerald-400" />
-          </div>
+
+            {/* Settings */}
+            <div>
+              <div className="flex items-center justify-between rounded-lg hover:bg-emerald-800/40 transition-all">
+                <NavLink
+                  to="/settings"
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex-1 flex items-center space-x-3 px-3.5 py-2.5 text-sm font-medium transition-all ${
+                      isActive
+                        ? 'bg-[#1e5631] text-white font-semibold rounded-lg'
+                        : 'text-emerald-100/90'
+                    }`
+                  }
+                >
+                  <Settings className="w-4 h-4 text-emerald-300" />
+                  <span>Settings</span>
+                </NavLink>
+                <button
+                  onClick={() => setSettingsOpen(!settingsOpen)}
+                  className="px-2 py-2 text-emerald-300/80 hover:text-white"
+                  title="Toggle Settings Options"
+                >
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      settingsOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {settingsOpen && (
+                <div className="pl-9 pr-2 py-1 space-y-1 text-xs text-emerald-200">
+                  <NavLink
+                    to="/settings"
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `block py-1.5 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
+                        isActive ? 'text-white font-semibold underline' : ''
+                      }`
+                    }
+                  >
+                    Threshold & Gateway
+                  </NavLink>
+                </div>
+              )}
+            </div>
+          </nav>
         </div>
 
-        {/* Navigation Section */}
-        <div className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
-          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-            Main Menu
-          </p>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  `group flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-emerald-600/90 text-white shadow-lg shadow-emerald-900/40 border border-emerald-500/40 font-semibold'
-                      : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`p-1.5 rounded-lg ${
-                          isActive
-                            ? 'bg-emerald-700 text-white'
-                            : 'bg-slate-800 text-slate-400 group-hover:text-emerald-400 group-hover:bg-slate-700/80'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div>{item.name}</div>
-                        <div
-                          className={`text-[10px] font-normal leading-tight ${
-                            isActive ? 'text-emerald-100' : 'text-slate-400 group-hover:text-slate-300'
-                          }`}
-                        >
-                          {item.description}
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight
-                      className={`w-4 h-4 transition-transform ${
-                        isActive
-                          ? 'text-emerald-200 translate-x-0.5'
-                          : 'text-slate-600 group-hover:text-slate-400'
-                      }`}
-                    />
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
-        </div>
-
-        {/* Gateway Status Badge in Sidebar */}
-        <div className="mx-4 mb-4 p-3 rounded-xl bg-gradient-to-r from-emerald-950/60 to-slate-900 border border-emerald-800/40">
-          <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-400">
-            <Radio className="w-3.5 h-3.5 animate-pulse" />
-            <span>On-Premise Gateway</span>
-          </div>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            Connected &bull; Ready to dispatch SMS
-          </p>
-        </div>
-
-        {/* User Card & Logout */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
-          <div className="flex items-center space-x-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-700 to-slate-600 text-white flex items-center justify-center font-bold text-xs ring-1 ring-white/10 shrink-0">
-              {user?.fullName ? user.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() : 'FO'}
-            </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold text-white truncate">{user?.fullName || 'Finance Officer'}</p>
-              <span className="inline-block text-[10px] font-bold text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-800/50">
-                {user?.role === 'ADMIN' ? 'Administrator' : 'Finance Officer'}
-              </span>
-            </div>
-          </div>
-
-          <button
-            onClick={logout}
-            title="Sign Out"
-            className="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+        {/* Bottom Logo Emblem */}
+        <div className="p-5 border-t border-emerald-800/40 flex items-center space-x-2.5">
+          <Sprout className="w-5 h-5 text-emerald-300" />
+          <span className="font-bold text-sm tracking-wider uppercase text-white">MOA</span>
         </div>
       </aside>
     </>
