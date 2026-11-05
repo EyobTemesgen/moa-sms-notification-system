@@ -1,0 +1,56 @@
+services:
+  # Database
+  db:
+    image: postgres:16-alpine
+    container_name: moa-sms-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: moa_user
+      POSTGRES_PASSWORD: moa_password
+      POSTGRES_DB: moa_sms_db
+      TZ: Africa/Addis_Ababa
+    ports:
+      - "5433:5432"
+    volumes:
+      - moa-sms-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U moa_user -d moa_sms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # NestJS API Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: moa-sms-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://moa_user:moa_password@db:5432/moa_sms_db
+      APP_SECRET: moa_super_secret_jwt_key_change_in_production_2026
+      SMS_PROVIDER: mock
+      SMS_GATEWAY_URL: http://10.10.20.50:8080/api/sms/send
+      DEFAULT_THRESHOLD: 20000000
+    ports:
+      - "3001:3001"
+
+  # React Web Frontend (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: moa-sms-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  moa-sms-db-data:
