@@ -41,7 +41,7 @@ export const LoginPage: React.FC = () => {
         <div className="relative z-10">
           <div className="inline-flex items-center space-x-2.5 px-3 py-1.5 rounded-full bg-emerald-800/60 border border-emerald-700/50 text-[11px] font-mono text-emerald-200">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>MOA On-Premise Gateway</span>
+            <span>MOA On-Premise Gateway / የውስጥ ኤስኤምኤስ ጌትዌይ</span>
           </div>
         </div>
 
@@ -61,19 +61,25 @@ export const LoginPage: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
             Ministry of Agriculture
           </h1>
-          <p className="text-emerald-200 text-sm font-light mt-2 max-w-sm">
-            Federal Democratic Republic of Ethiopia
+          <p className="text-emerald-300 text-lg font-medium mt-1">
+            የግብርና ሚኒስቴር
+          </p>
+          <p className="text-emerald-200 text-xs font-light mt-1 max-w-sm">
+            Federal Democratic Republic of Ethiopia / የኢትዮጵያ ፌዴራላዊ ዴሞክራሲያዊ ሪፐብሊክ
           </p>
           <div className="w-16 h-1 bg-emerald-400/60 rounded-full my-6" />
-          <p className="text-emerald-100/80 text-xs sm:text-sm leading-relaxed max-w-md">
-            High-Value Payment SMS Notification System. Automatic instant dispatch for executive oversight and financial compliance.
+          <p className="text-emerald-100/90 text-xs sm:text-sm leading-relaxed max-w-md">
+            High-Value Payment SMS Notification System. Automatic instant dispatch for executive leadership and financial transparency.
+          </p>
+          <p className="text-emerald-200/80 text-xs mt-1">
+            ከፍተኛ የመንግሥት የክፍያ ውሳኔዎችን ለሚመለከታቸው ኃላፊዎች በአጭር የጽሑፍ መልዕክት (SMS) ወዲያውኑ የማሳወቂያ ሥርዓት።
           </p>
         </div>
 
         {/* Bottom Trust Badge */}
         <div className="relative z-10 pt-6 border-t border-emerald-800/60 flex items-center space-x-2 text-xs text-emerald-300/80">
           <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-          <span>Encrypted Internal Finance Portal</span>
+          <span>Encrypted Ministry Finance Portal / የተጠበቀ የፋይናንስ ፖርታል</span>
         </div>
       </div>
 
@@ -81,9 +87,12 @@ export const LoginPage: React.FC = () => {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 lg:p-20 bg-white md:bg-slate-50">
         <div className="w-full max-w-md bg-white md:p-10 md:rounded-3xl md:shadow-xl md:border md:border-slate-200/80">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Staff Sign In</h2>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-baseline gap-2">
+              <span>Staff Sign In</span>
+              <span className="text-base font-semibold text-emerald-800">/ የሰራተኞች መግቢያ</span>
+            </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Authenticate to manage payments, notification rules, and gateway configurations.
+              Authenticate with your finance credentials to access payment alerts. / የተፈቀደለትን የተጠቃሚ ስም እና የይለፍ ቃል ያስገቡ።
             </p>
           </div>
 
@@ -96,8 +105,9 @@ export const LoginPage: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Username / Email
+              <label className="block text-xs font-semibold text-slate-800 mb-1">
+                <span>Username</span>
+                <span className="text-[11px] text-slate-500 font-normal ml-1.5">/ የተጠቃሚ ስም</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -115,8 +125,9 @@ export const LoginPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Password
+              <label className="block text-xs font-semibold text-slate-800 mb-1">
+                <span>Password</span>
+                <span className="text-[11px] text-slate-500 font-normal ml-1.5">/ የይለፍ ቃል</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -152,23 +163,27 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-[#0d4722] rounded border-slate-300 focus:ring-[#0d4722]"
                 />
-                <span>Remember Me</span>
+                <span>Remember Me / አስታውሰኝ</span>
               </label>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-[#0d4722] hover:bg-[#093218] text-white font-semibold rounded-xl text-sm shadow-md shadow-[#0d4722]/20 transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
+              className="w-full mt-2 py-3 px-4 bg-[#0d4722] hover:bg-[#093218] text-white font-semibold rounded-xl text-sm shadow-md shadow-[#0d4722]/20 transition-all disabled:opacity-50 flex items-center justify-center space-x-2 cursor-pointer"
             >
-              {loading ? <span>Signing In...</span> : <span>Secure Sign In</span>}
+              {loading ? (
+                <span>በማረጋገጥ ላይ / Authenticating...</span>
+              ) : (
+                <span>Secure Sign In / ደህንነቱ የተጠበቀ መግቢያ</span>
+              )}
             </button>
           </form>
 
           {/* Single User Access Info */}
           <div className="mt-8 pt-5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>Authorized User: <strong className="text-slate-800 font-mono">finance</strong> / <strong className="text-slate-800 font-mono">finance123</strong></span>
-            <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Full Access</span>
+            <span>ተጠቃሚ: <strong className="text-slate-800 font-mono">finance</strong> / <strong className="text-slate-800 font-mono">finance123</strong></span>
+            <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">ሙሉ ፈቃድ / Full Access</span>
           </div>
         </div>
       </div>

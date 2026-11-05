@@ -7,7 +7,6 @@ import {
   Download,
   MoreHorizontal,
   ChevronDown,
-  RotateCw,
 } from 'lucide-react';
 
 interface AuditRow {
@@ -34,7 +33,7 @@ export const PaymentHistoryPage: React.FC = () => {
       referenceNo: '236487991',
       recipientMobile: '+123648133984',
       amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
+      triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
       status: 'Sent',
     },
     {
@@ -43,7 +42,7 @@ export const PaymentHistoryPage: React.FC = () => {
       referenceNo: '235457962',
       recipientMobile: '+153647160688',
       amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
+      triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
       status: 'Pending',
     },
     {
@@ -52,7 +51,7 @@ export const PaymentHistoryPage: React.FC = () => {
       referenceNo: '236457858',
       recipientMobile: '+133647182555',
       amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
+      triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
       status: 'Failed',
     },
     {
@@ -61,7 +60,7 @@ export const PaymentHistoryPage: React.FC = () => {
       referenceNo: '225487993',
       recipientMobile: '+123648133994',
       amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
+      triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
       status: 'Sent',
     },
     {
@@ -70,7 +69,7 @@ export const PaymentHistoryPage: React.FC = () => {
       referenceNo: '236457967',
       recipientMobile: '+133647180688',
       amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
+      triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
       status: 'Failed',
     },
     {
@@ -79,34 +78,7 @@ export const PaymentHistoryPage: React.FC = () => {
       referenceNo: '236457853',
       recipientMobile: '+133648133984',
       amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
-      status: 'Sent',
-    },
-    {
-      id: 's7',
-      timestamp: '2026-07-22 18:03:00',
-      referenceNo: '256457992',
-      recipientMobile: '+153647160658',
-      amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
-      status: 'Pending',
-    },
-    {
-      id: 's8',
-      timestamp: '2026-07-22 18:03:00',
-      referenceNo: '235451915',
-      recipientMobile: '+133647782655',
-      amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
-      status: 'Failed',
-    },
-    {
-      id: 's9',
-      timestamp: '2026-07-23 18:03:00',
-      referenceNo: '236457893',
-      recipientMobile: '+153648133954',
-      amount: '+1,500 0',
-      triggerEvent: 'High-Value Payment Alert',
+      triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
       status: 'Sent',
     },
   ];
@@ -135,7 +107,7 @@ export const PaymentHistoryPage: React.FC = () => {
             referenceNo: relatedPayment?.voucherRef || `23648${7990 + idx}`,
             recipientMobile: log.recipientNumber,
             amount: `+${(amt / 1000).toLocaleString()} 0`,
-            triggerEvent: 'High-Value Payment Alert',
+            triggerEvent: 'High-Value Alert (ከፍተኛ ክፍያ)',
             status:
               log.status === 'SENT'
                 ? 'Sent'
@@ -193,29 +165,30 @@ export const PaymentHistoryPage: React.FC = () => {
       {/* Header & Primary Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            History & Audit Log
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-baseline gap-2">
+            <span>History & Audit Log</span>
+            <span className="text-base font-semibold text-emerald-800">/ የታሪክና የኦዲት መዝገብ</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Full ledger of high-amount payment triggers, on-premise gateway transmissions, and delivery reports.
+            Full ledger of high-amount payment triggers and on-premise SMS transmissions. / የተላኩ የኤስኤምኤስ መልዕክቶችና የተመዘገቡ ክፍያዎች ሙሉ የኦዲት መረጃ።
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300 shadow-2xs transition-all flex items-center space-x-1.5"
+            className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300 shadow-2xs transition-all flex items-center space-x-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Export CSV</span>
+            <span>Export CSV / ኤክስፖርት</span>
           </button>
 
           <button
             onClick={fetchAuditLogs}
-            className="px-4 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center space-x-1.5"
+            className="px-4 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer"
           >
             <Filter className="w-3.5 h-3.5" />
-            <span>Refresh & Filter</span>
+            <span>Refresh / አድስ</span>
           </button>
         </div>
       </div>
@@ -227,7 +200,7 @@ export const PaymentHistoryPage: React.FC = () => {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search reference, mobile, or event..."
+            placeholder="ፈልግ / Search reference, mobile, or event..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] outline-none"
@@ -241,10 +214,10 @@ export const PaymentHistoryPage: React.FC = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 bg-white focus:ring-2 focus:ring-[#0d4722] outline-none cursor-pointer"
           >
-            <option value="All">Status: All</option>
-            <option value="Sent">Status: Sent</option>
-            <option value="Pending">Status: Pending</option>
-            <option value="Failed">Status: Failed</option>
+            <option value="All">ሁኔታ: ሁሉም (Status: All)</option>
+            <option value="Sent">ተልኳል (Sent)</option>
+            <option value="Pending">በመጠባበቅ ላይ (Pending)</option>
+            <option value="Failed">አልተሳካም (Failed)</option>
           </select>
           <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
         </div>
@@ -256,10 +229,10 @@ export const PaymentHistoryPage: React.FC = () => {
             onChange={(e) => setDateFilter(e.target.value)}
             className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 bg-white focus:ring-2 focus:ring-[#0d4722] outline-none cursor-pointer"
           >
-            <option value="All">Date Range: All</option>
-            <option value="Today">Today</option>
-            <option value="Week">This Week</option>
-            <option value="Month">This Month</option>
+            <option value="All">የቀን ክልል: ሁሉም (All Dates)</option>
+            <option value="Today">ዛሬ (Today)</option>
+            <option value="Week">በዚህ ሳምንት (This Week)</option>
+            <option value="Month">በዚህ ወር (This Month)</option>
           </select>
           <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
         </div>
@@ -271,12 +244,12 @@ export const PaymentHistoryPage: React.FC = () => {
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="text-[11px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/70">
               <tr>
-                <th className="py-3 px-4">Timestamp ↑</th>
-                <th className="py-3 px-4">Reference No.</th>
-                <th className="py-3 px-4">Recipient Mobile No.</th>
-                <th className="py-3 px-4">Amount (ETB)</th>
-                <th className="py-3 px-4">Trigger Event</th>
-                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4">Timestamp ↑ / ቀንና ሰዓት</th>
+                <th className="py-3 px-4">Reference No. / የክፍያ ቁጥር</th>
+                <th className="py-3 px-4">Recipient Mobile / የስልክ ቁጥር</th>
+                <th className="py-3 px-4">Amount (ETB) / መጠን (ብር)</th>
+                <th className="py-3 px-4">Trigger Event / የክስተት ዓይነት</th>
+                <th className="py-3 px-4">Status / ሁኔታ</th>
                 <th className="py-3 px-4 text-right"></th>
               </tr>
             </thead>
@@ -308,7 +281,11 @@ export const PaymentHistoryPage: React.FC = () => {
                           : 'bg-rose-100 text-rose-800'
                       }`}
                     >
-                      {r.status}
+                      {r.status === 'Sent'
+                        ? 'ተልኳል / Sent'
+                        : r.status === 'Pending'
+                        ? 'በመጠባበቅ ላይ / Pending'
+                        : 'አልተሳካም / Failed'}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-right text-slate-400">

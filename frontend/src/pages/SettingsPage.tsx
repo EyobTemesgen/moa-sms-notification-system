@@ -17,7 +17,7 @@ export const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   // Form Fields matching Screen 4
-  const [thresholdValue, setThresholdValue] = useState<number>(1000000);
+  const [thresholdValue, setThresholdValue] = useState<number>(20000000);
   const [isAlertActive, setIsAlertActive] = useState<boolean>(true);
   const [ipAddress, setIpAddress] = useState<string>('197.168.183.150');
   const [port, setPort] = useState<string>('20023');
@@ -48,7 +48,7 @@ export const SettingsPage: React.FC = () => {
       setRecipients(rData);
 
       if (sData) {
-        setThresholdValue(parseFloat(sData.thresholdAmount) || 1000000);
+        setThresholdValue(parseFloat(sData.thresholdAmount) || 20000000);
         setIsAlertActive(sData.isAlertEnabled);
         if (sData.smsGatewayUrl) {
           try {
@@ -94,18 +94,18 @@ export const SettingsPage: React.FC = () => {
     setTestResult(null);
     try {
       await api.testSms({
-        phoneNumber: '+251912345789',
+        phoneNumber: '+251911223344',
         gatewayUrl: `http://${ipAddress}:${port}/${stack}`,
         apiKey: apn,
       });
       setTestResult({
         success: true,
-        message: 'On-Premise SMS Gateway: Connected & Verified',
+        message: 'On-Premise SMS Gateway: Connected & Verified / ግንኙነቱ ተሳክቷል',
       });
     } catch (err: any) {
       setTestResult({
         success: false,
-        message: err.message || 'Gateway connection timed out',
+        message: err.message || 'Gateway connection timed out / የግንኙነት ስህተት',
       });
     } finally {
       setTestingConnection(false);
@@ -134,7 +134,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="p-12 text-center text-xs text-slate-400">Loading settings...</div>;
+    return <div className="p-12 text-center text-xs text-slate-400">በመጫን ላይ / Loading settings...</div>;
   }
 
   return (
@@ -142,21 +142,24 @@ export const SettingsPage: React.FC = () => {
       {/* Page Title & Save Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            SMS Gateway & Manager Settings
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight flex items-baseline gap-2">
+            <span>SMS Gateway & Manager Settings</span>
+            <span className="text-base font-semibold text-emerald-800">
+              / የኤስኤምኤስ ጌትዌይና የማንቂያ ማስተካከያ
+            </span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Configure the trigger alert limit, on-premise hardware connection, and executive alert contacts.
+            Configure the trigger alert limit, on-premise hardware connection, and executive contacts. / የማንቂያ መነሻ ገደብ፣ የሃርድዌር ጌትዌይ ውቅር እና የተላላኪ ኃላፊዎችን ያቀናብሩ።
           </p>
         </div>
 
         <button
           onClick={handleSaveSettings}
           disabled={saving}
-          className="px-5 py-2.5 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center space-x-2 disabled:opacity-50 self-start sm:self-auto"
+          className="px-5 py-2.5 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center space-x-2 disabled:opacity-50 self-start sm:self-auto cursor-pointer"
         >
           <Check className="w-4 h-4" />
-          <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+          <span>{saving ? 'በመመዝገብ ላይ / Saving...' : 'Save Changes / ለውጦችን መዝግብ'}</span>
         </button>
       </div>
 
@@ -168,7 +171,7 @@ export const SettingsPage: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-sm font-bold text-slate-900">
-                Trigger Threshold Slider
+                Trigger Threshold Slider / የማንቂያ ገደብ መጠን
               </h3>
 
               {/* iOS Style Toggle Switch */}
@@ -188,7 +191,7 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-500 mb-6">
-              Configure high-amount alert limit to activate instant notification dispatch below.
+              ከዚህ መጠን በላይ የሚፈጸም ክፍያ አፋጣኝ የማንቂያ መልዕክት ያስነሳል። / Configure payment alert limit to trigger instant executive SMS.
             </p>
 
             {/* Range Slider Container with Dynamic Tooltip */}
@@ -197,18 +200,18 @@ export const SettingsPage: React.FC = () => {
               <div
                 className="absolute top-0 transform -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold py-0.5 px-2.5 rounded shadow-md pointer-events-none transition-all"
                 style={{
-                  left: `${Math.min(92, Math.max(8, (thresholdValue / 20000000) * 100))}%`,
+                  left: `${Math.min(92, Math.max(8, (thresholdValue / 30000000) * 100))}%`,
                 }}
               >
-                {thresholdValue.toLocaleString()} ETB
+                {thresholdValue.toLocaleString()} ETB / ብር
               </div>
 
               {/* Native styled slider */}
               <input
                 type="range"
                 min="0"
-                max="20000000"
-                step="500000"
+                max="30000000"
+                step="1000000"
                 value={thresholdValue}
                 onChange={(e) => setThresholdValue(Number(e.target.value))}
                 className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0d4722]"
@@ -216,11 +219,11 @@ export const SettingsPage: React.FC = () => {
 
               {/* Scale Labels below slider */}
               <div className="flex justify-between text-[11px] text-slate-500 font-medium mt-2">
-                <span>0 ETB</span>
+                <span>0 ብር</span>
                 <span className="text-[#0d4722] font-bold">
                   {thresholdValue.toLocaleString()} ETB
                 </span>
-                <span>20,000,000 ETB</span>
+                <span>30,000,000 ብር</span>
               </div>
             </div>
           </div>
@@ -229,11 +232,11 @@ export const SettingsPage: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-900">
-                On-Premise SMS Gateway
+                On-Premise SMS Gateway / የውስጥ ኤስኤምኤስ ጌትዌይ
               </h3>
               <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Live</span>
+                <span>ቀጥታ / Live</span>
               </div>
             </div>
 
@@ -246,7 +249,7 @@ export const SettingsPage: React.FC = () => {
                   On-Premise SMS Gateway:
                 </p>
                 <p className="text-base font-extrabold text-[#0d4722] mt-0.5">
-                  Connected
+                  Connected / ተገናኝቷል
                 </p>
               </div>
             </div>
@@ -258,7 +261,7 @@ export const SettingsPage: React.FC = () => {
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-900">
-                On-Premise SMS Gateway Configuration
+                On-Premise Gateway Configuration / የሃርድዌር ጌትዌይ ውቅር
               </h3>
               <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -268,8 +271,9 @@ export const SettingsPage: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  IP Address
+                <label className="block text-xs font-semibold text-slate-800 mb-1">
+                  <span>IP Address</span>
+                  <span className="text-[11px] text-slate-500 font-normal ml-1.5">/ የአይፒ አድራሻ</span>
                 </label>
                 <input
                   type="text"
@@ -282,8 +286,9 @@ export const SettingsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Port
+                  <label className="block text-xs font-semibold text-slate-800 mb-1">
+                    <span>Port</span>
+                    <span className="text-[11px] text-slate-500 font-normal ml-1.5">/ ፖርት</span>
                   </label>
                   <input
                     type="text"
@@ -295,8 +300,9 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Stack
+                  <label className="block text-xs font-semibold text-slate-800 mb-1">
+                    <span>Stack</span>
+                    <span className="text-[11px] text-slate-500 font-normal ml-1.5">/ ፕሮቶኮል</span>
                   </label>
                   <input
                     type="text"
@@ -309,8 +315,9 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  APN
+                <label className="block text-xs font-semibold text-slate-800 mb-1">
+                  <span>APN (Access Point Name)</span>
+                  <span className="text-[11px] text-slate-500 font-normal ml-1.5">/ ቴሌኮም ኤፒኤን</span>
                 </label>
                 <input
                   type="text"
@@ -325,9 +332,9 @@ export const SettingsPage: React.FC = () => {
                 type="button"
                 onClick={handleTestConnection}
                 disabled={testingConnection}
-                className="w-full py-2.5 px-4 bg-[#0d4722] hover:bg-[#0a381b] text-white font-semibold rounded-xl text-xs shadow-xs transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 mt-2"
+                className="w-full py-2.5 px-4 bg-[#0d4722] hover:bg-[#0a381b] text-white font-semibold rounded-xl text-xs shadow-xs transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 mt-2 cursor-pointer"
               >
-                <span>{testingConnection ? 'Testing Connection...' : 'Test Connection'}</span>
+                <span>{testingConnection ? 'በመሞከር ላይ / Testing...' : 'Test Connection / ግንኙነት ፈትሽ'}</span>
               </button>
 
               {testResult && (
@@ -356,8 +363,10 @@ export const SettingsPage: React.FC = () => {
         <div className="flex items-center space-x-2 pb-3 border-b border-slate-100">
           <Users className="w-5 h-5 text-[#0d4722]" />
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Executive Alert Contacts</h3>
-            <p className="text-xs text-slate-500">Government officials receiving high-amount payment SMS alerts.</p>
+            <h3 className="text-sm font-bold text-slate-900">
+              Executive Alert Contacts / የማንቂያ መልዕክት ተቀባይ ኃላፊዎች
+            </h3>
+            <p className="text-xs text-slate-500">ከፍተኛ ክፍያዎች በሚፈጸሙበት ጊዜ የኤስኤምኤስ መልዕክት የሚደርሳቸው የመንግሥት ኃላፊዎች ዝርዝር።</p>
           </div>
         </div>
 
@@ -365,7 +374,7 @@ export const SettingsPage: React.FC = () => {
           <input
             type="text"
             required
-            placeholder="Official Name (e.g. H.E. Minister)"
+            placeholder="የኃላፊው ስም / Official Name"
             value={newRecipient.name}
             onChange={(e) => setNewRecipient({ ...newRecipient, name: e.target.value })}
             className="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white outline-none focus:ring-1 focus:ring-[#0d4722]"
@@ -373,7 +382,7 @@ export const SettingsPage: React.FC = () => {
           <input
             type="text"
             required
-            placeholder="Title (e.g. Director of Finance)"
+            placeholder="የሥራ መደብ / Position"
             value={newRecipient.title}
             onChange={(e) => setNewRecipient({ ...newRecipient, title: e.target.value })}
             className="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white outline-none focus:ring-1 focus:ring-[#0d4722]"
@@ -381,17 +390,17 @@ export const SettingsPage: React.FC = () => {
           <input
             type="text"
             required
-            placeholder="Mobile (+251912345789)"
+            placeholder="ስልክ (+251911223344)"
             value={newRecipient.phoneNumber}
             onChange={(e) => setNewRecipient({ ...newRecipient, phoneNumber: e.target.value })}
             className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono bg-white outline-none focus:ring-1 focus:ring-[#0d4722]"
           />
           <button
             type="submit"
-            className="px-3 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-1 shadow-2xs"
+            className="px-3 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-1 shadow-2xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Contact</span>
+            <span>አክል / Add Contact</span>
           </button>
         </form>
 
@@ -409,7 +418,7 @@ export const SettingsPage: React.FC = () => {
               <button
                 onClick={() => handleDeleteRecipient(r.id)}
                 className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
-                title="Remove"
+                title="አስወግድ / Remove"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -418,18 +427,18 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Toast Notification (Matching Screen 4) */}
+      {/* Floating Toast Notification */}
       {showToast && (
         <div className="fixed bottom-6 right-6 z-50 bg-[#0d4722] text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 border border-emerald-600/40 animate-slideUp">
           <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-white shrink-0">
             <Check className="w-3.5 h-3.5" />
           </div>
           <span className="text-xs font-semibold">
-            Saved! Setting confirmed alert
+            ለውጦች በትክክል ተመዝግበዋል! / Saved! Setting confirmed alert
           </span>
           <button
             onClick={() => setShowToast(false)}
-            className="p-1 text-emerald-200 hover:text-white transition-colors"
+            className="p-1 text-emerald-200 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>

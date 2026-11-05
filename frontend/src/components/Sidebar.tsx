@@ -54,8 +54,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               />
               <div>
                 <h1 className="font-extrabold text-lg leading-tight tracking-tight">MOA</h1>
-                <p className="text-[11px] text-emerald-200/80 font-normal leading-none mt-0.5">
+                <p className="text-[11px] text-emerald-200/90 font-normal leading-none mt-0.5">
                   Ministry of Agriculture
+                </p>
+                <p className="text-[10px] text-emerald-300/80 font-normal leading-none mt-1">
+                  የግብርና ሚኒስቴር
                 </p>
               </div>
             </div>
@@ -85,8 +88,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 }`
               }
             >
-              <Send className="w-4 h-4 text-emerald-300" />
-              <span>Send Notification</span>
+              <Send className="w-4 h-4 text-emerald-300 shrink-0" />
+              <div className="flex flex-col text-left">
+                <span>Send Notification</span>
+                <span className="text-[10px] text-emerald-300 font-normal">ማስታወቂያ ላክ</span>
+              </div>
             </NavLink>
 
             {/* History */}
@@ -96,15 +102,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   to="/history"
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `flex-1 flex items-center space-x-3 px-3.5 py-2.5 text-sm font-medium transition-all ${
+                    `flex-1 flex items-center space-x-3 px-3.5 py-2 text-sm font-medium transition-all ${
                       isActive || location.pathname === '/sms-logs'
                         ? 'bg-[#1e5631] text-white font-semibold rounded-lg'
                         : 'text-emerald-100/90'
                     }`
                   }
                 >
-                  <History className="w-4 h-4 text-emerald-300" />
-                  <span>History</span>
+                  <History className="w-4 h-4 text-emerald-300 shrink-0" />
+                  <div className="flex flex-col text-left">
+                    <span>History</span>
+                    <span className="text-[10px] text-emerald-300 font-normal">ታሪክና መዝገብ</span>
+                  </div>
                 </NavLink>
                 <button
                   onClick={() => setHistoryOpen(!historyOpen)}
@@ -125,23 +134,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     to="/history"
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `block py-1.5 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
+                      `block py-1 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
                         isActive ? 'text-white font-semibold underline' : ''
                       }`
                     }
                   >
-                    History & Audit Log
+                    Audit Log (የኦዲት መዝገብ)
                   </NavLink>
                   <NavLink
                     to="/sms-logs"
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `block py-1.5 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
+                      `block py-1 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
                         isActive ? 'text-white font-semibold underline' : ''
                       }`
                     }
                   >
-                    SMS Gateway Dispatches
+                    SMS Logs (የኤስኤምኤስ ምዝግብ)
                   </NavLink>
                 </div>
               )}
@@ -154,15 +163,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   to="/settings"
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `flex-1 flex items-center space-x-3 px-3.5 py-2.5 text-sm font-medium transition-all ${
+                    `flex-1 flex items-center space-x-3 px-3.5 py-2 text-sm font-medium transition-all ${
                       isActive
                         ? 'bg-[#1e5631] text-white font-semibold rounded-lg'
                         : 'text-emerald-100/90'
                     }`
                   }
                 >
-                  <Settings className="w-4 h-4 text-emerald-300" />
-                  <span>Settings</span>
+                  <Settings className="w-4 h-4 text-emerald-300 shrink-0" />
+                  <div className="flex flex-col text-left">
+                    <span>Settings</span>
+                    <span className="text-[10px] text-emerald-300 font-normal">ማስተካከያ</span>
+                  </div>
                 </NavLink>
                 <button
                   onClick={() => setSettingsOpen(!settingsOpen)}
@@ -183,12 +195,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     to="/settings"
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `block py-1.5 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
+                      `block py-1 px-2 rounded hover:bg-emerald-800/50 hover:text-white ${
                         isActive ? 'text-white font-semibold underline' : ''
                       }`
                     }
                   >
-                    Threshold & Gateway
+                    Threshold & Gateway (ገደብና ጌትዌይ)
                   </NavLink>
                 </div>
               )}
@@ -197,9 +209,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Bottom Logo Emblem */}
-        <div className="p-5 border-t border-emerald-800/40 flex items-center space-x-2.5">
-          <Sprout className="w-5 h-5 text-emerald-300" />
-          <span className="font-bold text-sm tracking-wider uppercase text-white">MOA</span>
+        <div className="p-5 border-t border-emerald-800/40 flex items-center justify-between">
+          <div className="flex items-center space-x-2.5">
+            <Sprout className="w-5 h-5 text-emerald-300" />
+            <span className="font-bold text-sm tracking-wider uppercase text-white">MOA</span>
+          </div>
+          <span className="text-[10px] text-emerald-350 text-emerald-300 font-mono">ኢትዮጵያ</span>
         </div>
       </aside>
     </>
