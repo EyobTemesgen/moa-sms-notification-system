@@ -8,7 +8,6 @@ import {
   X,
   Plus,
   Trash2,
-  Smartphone,
   Users,
 } from 'lucide-react';
 
@@ -94,7 +93,7 @@ export const SettingsPage: React.FC = () => {
     setTestingConnection(true);
     setTestResult(null);
     try {
-      const res = await api.testSms({
+      await api.testSms({
         phoneNumber: '+251912345789',
         gatewayUrl: `http://${ipAddress}:${port}/${stack}`,
         apiKey: apn,
@@ -140,25 +139,30 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 relative pb-16">
-      {/* Page Title & Save Button (Matching Screen 4) */}
-      <div className="flex items-center justify-between pb-1">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-          SMS Gateway & Manager Settings
-        </h2>
+      {/* Page Title & Save Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+            SMS Gateway & Manager Settings
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Configure the trigger alert limit, on-premise hardware connection, and executive alert contacts.
+          </p>
+        </div>
 
         <button
           onClick={handleSaveSettings}
           disabled={saving}
-          className="px-4 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center space-x-1.5 disabled:opacity-50"
+          className="px-5 py-2.5 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center space-x-2 disabled:opacity-50 self-start sm:self-auto"
         >
-          <Check className="w-3.5 h-3.5" />
-          <span>{saving ? 'Saving...' : 'Save edit'}</span>
+          <Check className="w-4 h-4" />
+          <span>{saving ? 'Saving...' : 'Save Changes'}</span>
         </button>
       </div>
 
-      {/* Main Settings Grid */}
+      {/* Main Settings Grid (2 Columns) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Threshold Slider & Live Gateway Status */}
+        {/* Left Column: Threshold Slider & Gateway Status */}
         <div className="lg:col-span-6 space-y-6">
           {/* Card 1: Trigger Threshold Slider */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
@@ -183,8 +187,8 @@ export const SettingsPage: React.FC = () => {
               </button>
             </div>
 
-            <p className="text-[11px] text-slate-500 mb-6">
-              Configure high-amount alert limit to activate high-amount alert limit below.
+            <p className="text-xs text-slate-500 mb-6">
+              Configure high-amount alert limit to activate instant notification dispatch below.
             </p>
 
             {/* Range Slider Container with Dynamic Tooltip */}
@@ -207,13 +211,13 @@ export const SettingsPage: React.FC = () => {
                 step="500000"
                 value={thresholdValue}
                 onChange={(e) => setThresholdValue(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0d4722]"
+                className="w-full h-2.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0d4722]"
               />
 
               {/* Scale Labels below slider */}
               <div className="flex justify-between text-[11px] text-slate-500 font-medium mt-2">
-                <span>0</span>
-                <span className="text-slate-600 font-semibold">
+                <span>0 ETB</span>
+                <span className="text-[#0d4722] font-bold">
                   {thresholdValue.toLocaleString()} ETB
                 </span>
                 <span>20,000,000 ETB</span>
@@ -223,25 +227,25 @@ export const SettingsPage: React.FC = () => {
 
           {/* Card 2: On-Premise SMS Gateway Status */}
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-900">
                 On-Premise SMS Gateway
               </h3>
-              <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600">
+              <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Live</span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3.5 pt-1">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                <Activity className="w-5 h-5" />
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-800 shrink-0">
+                <Activity className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-medium leading-none">
+                <p className="text-xs text-slate-500 font-medium">
                   On-Premise SMS Gateway:
                 </p>
-                <p className="text-sm font-bold text-[#0d4722] mt-1 leading-none">
+                <p className="text-base font-extrabold text-[#0d4722] mt-0.5">
                   Connected
                 </p>
               </div>
@@ -256,7 +260,7 @@ export const SettingsPage: React.FC = () => {
               <h3 className="text-sm font-bold text-slate-900">
                 On-Premise SMS Gateway Configuration
               </h3>
-              <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600">
+              <div className="flex items-center space-x-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Live</span>
               </div>
@@ -271,7 +275,7 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={ipAddress}
                   onChange={(e) => setIpAddress(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
                   placeholder="197.168.183.150"
                 />
               </div>
@@ -285,7 +289,7 @@ export const SettingsPage: React.FC = () => {
                     type="text"
                     value={port}
                     onChange={(e) => setPort(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
                     placeholder="20023"
                   />
                 </div>
@@ -298,7 +302,7 @@ export const SettingsPage: React.FC = () => {
                     type="text"
                     value={stack}
                     onChange={(e) => setStack(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
                     placeholder="api-v-run"
                   />
                 </div>
@@ -312,7 +316,7 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={apn}
                   onChange={(e) => setApn(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] bg-white outline-none"
                   placeholder="et-telecom.com"
                 />
               </div>
@@ -321,14 +325,14 @@ export const SettingsPage: React.FC = () => {
                 type="button"
                 onClick={handleTestConnection}
                 disabled={testingConnection}
-                className="w-full py-2.5 px-4 bg-[#0d4722] hover:bg-[#0a381b] text-white font-semibold rounded-lg text-xs shadow-xs transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 mt-2"
+                className="w-full py-2.5 px-4 bg-[#0d4722] hover:bg-[#0a381b] text-white font-semibold rounded-xl text-xs shadow-xs transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 mt-2"
               >
                 <span>{testingConnection ? 'Testing Connection...' : 'Test Connection'}</span>
               </button>
 
               {testResult && (
                 <div
-                  className={`p-3 rounded-lg text-xs font-medium border flex items-center space-x-2 ${
+                  className={`p-3 rounded-xl text-xs font-medium border flex items-center space-x-2 ${
                     testResult.success
                       ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                       : 'bg-rose-50 border-rose-200 text-rose-800'
@@ -347,41 +351,44 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Executive Alert Contacts (Secondary panel for full managerial capability) */}
+      {/* Executive Alert Contacts */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
         <div className="flex items-center space-x-2 pb-3 border-b border-slate-100">
           <Users className="w-5 h-5 text-[#0d4722]" />
-          <h3 className="text-sm font-bold text-slate-900">Executive Alert Contacts</h3>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">Executive Alert Contacts</h3>
+            <p className="text-xs text-slate-500">Government officials receiving high-amount payment SMS alerts.</p>
+          </div>
         </div>
 
         <form onSubmit={handleAddRecipient} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <input
             type="text"
             required
-            placeholder="Executive Name"
+            placeholder="Official Name (e.g. H.E. Minister)"
             value={newRecipient.name}
             onChange={(e) => setNewRecipient({ ...newRecipient, name: e.target.value })}
-            className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
+            className="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white outline-none focus:ring-1 focus:ring-[#0d4722]"
           />
           <input
             type="text"
             required
-            placeholder="Position (e.g. Director)"
+            placeholder="Title (e.g. Director of Finance)"
             value={newRecipient.title}
             onChange={(e) => setNewRecipient({ ...newRecipient, title: e.target.value })}
-            className="px-3 py-2 rounded-lg border border-slate-300 text-xs bg-white"
+            className="px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white outline-none focus:ring-1 focus:ring-[#0d4722]"
           />
           <input
             type="text"
             required
-            placeholder="+251912345789"
+            placeholder="Mobile (+251912345789)"
             value={newRecipient.phoneNumber}
             onChange={(e) => setNewRecipient({ ...newRecipient, phoneNumber: e.target.value })}
-            className="px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono bg-white"
+            className="px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono bg-white outline-none focus:ring-1 focus:ring-[#0d4722]"
           />
           <button
             type="submit"
-            className="px-3 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-lg flex items-center justify-center space-x-1"
+            className="px-3 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl flex items-center justify-center space-x-1 shadow-2xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Contact</span>
@@ -392,7 +399,7 @@ export const SettingsPage: React.FC = () => {
           {recipients.map((r) => (
             <div
               key={r.id}
-              className="p-3 rounded-xl border border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs"
+              className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between text-xs hover:border-slate-300 transition-colors"
             >
               <div>
                 <p className="font-bold text-slate-900">{r.name}</p>
@@ -401,8 +408,8 @@ export const SettingsPage: React.FC = () => {
               </div>
               <button
                 onClick={() => handleDeleteRecipient(r.id)}
-                className="p-1 text-slate-400 hover:text-rose-600 rounded"
-                title="Delete"
+                className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
+                title="Remove"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

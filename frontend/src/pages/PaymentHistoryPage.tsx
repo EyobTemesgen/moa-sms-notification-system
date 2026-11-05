@@ -27,87 +27,86 @@ export const PaymentHistoryPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('All');
 
-  // Sample mockup rows to guarantee visual parity with Screen 3
   const sampleAuditRows: AuditRow[] = [
     {
       id: 's1',
-      timestamp: '2023-07-23 18:03:00',
+      timestamp: '2026-07-23 18:03:00',
       referenceNo: '236487991',
       recipientMobile: '+123648133984',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Sent',
     },
     {
       id: 's2',
-      timestamp: '2023-07-23 18:03:00',
+      timestamp: '2026-07-23 18:03:00',
       referenceNo: '235457962',
       recipientMobile: '+153647160688',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Pending',
     },
     {
       id: 's3',
-      timestamp: '2023-07-22 18:03:00',
+      timestamp: '2026-07-22 18:03:00',
       referenceNo: '236457858',
       recipientMobile: '+133647182555',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Failed',
     },
     {
       id: 's4',
-      timestamp: '2023-07-23 18:03:00',
+      timestamp: '2026-07-23 18:03:00',
       referenceNo: '225487993',
       recipientMobile: '+123648133994',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Sent',
     },
     {
       id: 's5',
-      timestamp: '2023-07-22 18:03:00',
+      timestamp: '2026-07-22 18:03:00',
       referenceNo: '236457967',
       recipientMobile: '+133647180688',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Failed',
     },
     {
       id: 's6',
-      timestamp: '2023-07-22 18:03:00',
+      timestamp: '2026-07-22 18:03:00',
       referenceNo: '236457853',
       recipientMobile: '+133648133984',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Sent',
     },
     {
       id: 's7',
-      timestamp: '2023-07-22 18:03:00',
+      timestamp: '2026-07-22 18:03:00',
       referenceNo: '256457992',
       recipientMobile: '+153647160658',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Pending',
     },
     {
       id: 's8',
-      timestamp: '2023-07-22 18:03:00',
+      timestamp: '2026-07-22 18:03:00',
       referenceNo: '235451915',
       recipientMobile: '+133647782655',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Failed',
     },
     {
       id: 's9',
-      timestamp: '2023-07-23 18:03:00',
+      timestamp: '2026-07-23 18:03:00',
       referenceNo: '236457893',
       recipientMobile: '+153648133954',
       amount: '+1,500 0',
-      triggerEvent: 'Trigger Event',
+      triggerEvent: 'High-Value Payment Alert',
       status: 'Sent',
     },
   ];
@@ -136,7 +135,7 @@ export const PaymentHistoryPage: React.FC = () => {
             referenceNo: relatedPayment?.voucherRef || `23648${7990 + idx}`,
             recipientMobile: log.recipientNumber,
             amount: `+${(amt / 1000).toLocaleString()} 0`,
-            triggerEvent: 'Trigger Event',
+            triggerEvent: 'High-Value Payment Alert',
             status:
               log.status === 'SENT'
                 ? 'Sent'
@@ -146,7 +145,6 @@ export const PaymentHistoryPage: React.FC = () => {
           };
         });
 
-        // Combine live rows with sample rows for full screen audit view
         setRows([...liveRows, ...sampleAuditRows]);
       } else {
         setRows(sampleAuditRows);
@@ -176,7 +174,7 @@ export const PaymentHistoryPage: React.FC = () => {
     const csvContent = [
       headers.join(','),
       ...filteredRows.map((r) =>
-        [r.timestamp, r.referenceNo, r.recipientMobile, `"${r.amount}"`, r.triggerEvent, r.status].join(',')
+        [r.timestamp, r.referenceNo, r.recipientMobile, `"${r.amount}"`, `"${r.triggerEvent}"`, r.status].join(',')
       ),
     ].join('\n');
 
@@ -184,7 +182,7 @@ export const PaymentHistoryPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `moa_dispatched_history_${Date.now()}.csv`);
+    link.setAttribute('download', `moa_audit_log_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -192,27 +190,32 @@ export const PaymentHistoryPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Page Title & Top Actions (Matching Screen 3) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-          History & Audit Log
-        </h2>
+      {/* Header & Primary Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+            History & Audit Log
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Full ledger of high-amount payment triggers, on-premise gateway transmissions, and delivery reports.
+          </p>
+        </div>
 
         <div className="flex items-center space-x-3">
           <button
             onClick={handleExportCSV}
-            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 shadow-2xs transition-all flex items-center space-x-1.5"
+            className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-300 shadow-2xs transition-all flex items-center space-x-1.5"
           >
             <Download className="w-3.5 h-3.5 text-slate-500" />
-            <span>Export</span>
+            <span>Export CSV</span>
           </button>
 
           <button
             onClick={fetchAuditLogs}
-            className="px-4 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-lg shadow-2xs transition-all flex items-center space-x-1.5"
+            className="px-4 py-2 bg-[#0d4722] hover:bg-[#0a381b] text-white text-xs font-semibold rounded-xl shadow-xs transition-all flex items-center space-x-1.5"
           >
             <Filter className="w-3.5 h-3.5" />
-            <span>Filter</span>
+            <span>Refresh & Filter</span>
           </button>
         </div>
       </div>
@@ -220,11 +223,11 @@ export const PaymentHistoryPage: React.FC = () => {
       {/* Filter / Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center gap-3">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-[220px]">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search"
+            placeholder="Search reference, mobile, or event..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-800 bg-white focus:ring-2 focus:ring-[#0d4722] focus:border-[#0d4722] outline-none"
@@ -253,29 +256,20 @@ export const PaymentHistoryPage: React.FC = () => {
             onChange={(e) => setDateFilter(e.target.value)}
             className="appearance-none pl-3 pr-8 py-1.5 rounded-lg border border-slate-300 text-xs font-medium text-slate-700 bg-white focus:ring-2 focus:ring-[#0d4722] outline-none cursor-pointer"
           >
-            <option value="All">Date Range</option>
+            <option value="All">Date Range: All</option>
             <option value="Today">Today</option>
             <option value="Week">This Week</option>
             <option value="Month">This Month</option>
           </select>
           <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 pointer-events-none" />
         </div>
-
-        {/* Export secondary button */}
-        <button
-          onClick={handleExportCSV}
-          className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-900 border border-slate-300 rounded-lg flex items-center space-x-1 bg-white hover:bg-slate-50 transition-colors"
-        >
-          <Download className="w-3 h-3 text-slate-400" />
-          <span>Export</span>
-        </button>
       </div>
 
-      {/* Dispatched History Table (Matching Screen 3 Columns) */}
+      {/* Dispatched History Table */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600">
-            <thead className="text-[11px] font-semibold text-slate-500 border-b border-slate-200/70 bg-slate-50/50">
+            <thead className="text-[11px] font-semibold text-slate-500 border-b border-slate-200 bg-slate-50/70">
               <tr>
                 <th className="py-3 px-4">Timestamp ↑</th>
                 <th className="py-3 px-4">Reference No.</th>
@@ -288,7 +282,7 @@ export const PaymentHistoryPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredRows.map((r, index) => (
-                <tr key={`${r.id}-${index}`} className="hover:bg-slate-50/70 transition-colors">
+                <tr key={`${r.id}-${index}`} className="hover:bg-slate-50/80 transition-colors">
                   <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
                     {r.timestamp}
                   </td>
@@ -298,10 +292,10 @@ export const PaymentHistoryPage: React.FC = () => {
                   <td className="py-3 px-4 font-mono text-slate-700">
                     {r.recipientMobile}
                   </td>
-                  <td className="py-3 px-4 font-semibold text-slate-900">
+                  <td className="py-3 px-4 font-bold text-slate-900">
                     {r.amount}
                   </td>
-                  <td className="py-3 px-4 text-slate-600">
+                  <td className="py-3 px-4 text-slate-600 font-medium">
                     {r.triggerEvent}
                   </td>
                   <td className="py-3 px-4">

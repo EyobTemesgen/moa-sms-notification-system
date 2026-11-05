@@ -10,7 +10,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({ onOpenSidebar }) => {
   const { user, logout } = useAuth();
 
   return (
-    <header className="px-6 py-4 flex items-center justify-between border-b border-slate-100 bg-white">
+    <header className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between border-b border-slate-200/80 bg-white/95 backdrop-blur-xs">
       {/* Left: Hamburger menu */}
       <button
         onClick={onOpenSidebar}
