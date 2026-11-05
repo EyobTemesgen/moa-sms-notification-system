@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  LayoutGrid,
   Send,
   History,
   Settings,
@@ -72,8 +71,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3.5 space-y-1.5 mt-2">
-            {/* Dashboard / Wizard */}
+          <nav className="p-3.5 space-y-1.5 mt-3">
+            {/* Send Notification */}
             <NavLink
               to="/"
               onClick={onClose}
@@ -85,16 +84,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     : 'text-emerald-100/90 hover:bg-emerald-800/40 hover:text-white'
                 }`
               }
-            >
-              <LayoutGrid className="w-4 h-4 text-emerald-300" />
-              <span>Dashboard</span>
-            </NavLink>
-
-            {/* Send Notification */}
-            <NavLink
-              to="/"
-              onClick={onClose}
-              className="flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium text-emerald-100/90 hover:bg-emerald-800/40 hover:text-white transition-all"
             >
               <Send className="w-4 h-4 text-emerald-300" />
               <span>Send Notification</span>
