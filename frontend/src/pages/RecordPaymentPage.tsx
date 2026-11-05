@@ -5,12 +5,15 @@ import {
   CreditCard,
   AlertTriangle,
   CheckCircle2,
-  DollarSign,
   TrendingUp,
   Send,
   Building2,
   Calendar,
   FileText,
+  Smartphone,
+  ShieldAlert,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 
 export const RecordPaymentPage: React.FC = () => {
@@ -50,6 +53,7 @@ export const RecordPaymentPage: React.FC = () => {
   const threshold = settings ? parseFloat(settings.thresholdAmount) : 20000000;
   const numericAmount = parseFloat(formData.amount) || 0;
   const isHighValue = numericAmount >= threshold;
+  const progressPercent = Math.min(100, Math.round((numericAmount / threshold) * 100));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +68,6 @@ export const RecordPaymentPage: React.FC = () => {
       };
       const result = await api.createPayment(payload);
       setSuccessResult(result);
-      // Reset form with new voucher suggestion
       setFormData({
         voucherRef: '',
         payeeName: '',
@@ -92,91 +95,141 @@ export const RecordPaymentPage: React.FC = () => {
     'Emergency Relief & Food Security',
   ];
 
+  const setPresetAmount = (val: number) => {
+    setFormData((prev) => ({ ...prev, amount: val.toString() }));
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Top Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Alert Threshold</p>
-            <p className="text-xl font-bold text-gray-900 mt-1">
-              {(threshold / 1000000).toFixed(0)}M <span className="text-sm font-normal text-gray-500">ETB</span>
-            </p>
-          </div>
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl">
-            <AlertTriangle className="w-6 h-6" />
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">High-Value Count</p>
-            <p className="text-xl font-bold text-gray-900 mt-1">{stats?.highValueCount ?? 0}</p>
-          </div>
-          <div className="p-3 bg-rose-50 text-rose-600 rounded-xl">
-            <TrendingUp className="w-6 h-6" />
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Payments</p>
-            <p className="text-xl font-bold text-gray-900 mt-1">{stats?.totalPayments ?? 0}</p>
-          </div>
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-            <CreditCard className="w-6 h-6" />
+    <div className="space-y-8 pb-10">
+      {/* Executive Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                Notification Threshold
+              </p>
+              <p className="text-2xl font-black text-slate-900 mt-1">
+                {(threshold / 1000000).toFixed(0)}M{' '}
+                <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                  ETB
+                </span>
+              </p>
+              <p className="text-[11px] text-slate-700 mt-1">All amounts above trigger SMS</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">SMS Alerts Sent</p>
-            <p className="text-xl font-bold text-gray-900 mt-1">{stats?.sentAlerts ?? 0}</p>
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                High-Value Payments
+              </p>
+              <p className="text-2xl font-black text-rose-600 mt-1">
+                {stats?.highValueCount ?? 0}{' '}
+                <span className="text-xs font-semibold text-slate-700">Records</span>
+              </p>
+              <p className="text-[11px] text-slate-700 mt-1">
+                {stats?.highValueAmount
+                  ? (stats.highValueAmount / 1000000).toFixed(1) + 'M ETB total'
+                  : '0 ETB'}
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-xs">
+              <TrendingUp className="w-6 h-6" />
+            </div>
           </div>
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-            <Send className="w-6 h-6" />
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                Total Disbursements
+              </p>
+              <p className="text-2xl font-black text-slate-900 mt-1">
+                {stats?.totalPayments ?? 0}{' '}
+                <span className="text-xs font-semibold text-slate-700">Vouchers</span>
+              </p>
+              <p className="text-[11px] text-slate-700 mt-1">Logged into MOA audit register</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-xs">
+              <CreditCard className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                SMS Alerts Sent
+              </p>
+              <p className="text-2xl font-black text-blue-600 mt-1">
+                {stats?.sentAlerts ?? 0}{' '}
+                <span className="text-xs font-semibold text-slate-700">Delivered</span>
+              </p>
+              <p className="text-[11px] text-slate-700 mt-1">Dispatched to executives</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs">
+              <Send className="w-6 h-6" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Form Column */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-          <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-100">
-            <div className="p-2.5 bg-emerald-100 text-emerald-800 rounded-xl">
-              <CreditCard className="w-6 h-6" />
+      {/* Main Two-Column Work Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Form (7 Cols) */}
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
+          <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-100/80 text-emerald-800 flex items-center justify-center">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">New Disbursement Voucher</h2>
+                <p className="text-xs text-slate-500">Fill in details. The system checks threshold instantly.</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Record Finance Payment</h2>
-              <p className="text-xs text-gray-500">Enter disbursement details. High payments will immediately alert managers.</p>
-            </div>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 font-bold text-slate-600">
+              Form 2026-A
+            </span>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center space-x-3">
-              <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+            <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-center space-x-3">
+              <AlertTriangle className="w-5 h-5 flex-shrink-0 text-rose-600" />
               <span>{error}</span>
             </div>
           )}
 
           {successResult && (
-            <div className="mb-6 p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+            <div className="mb-6 p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 animate-fadeIn">
               <div className="flex items-start space-x-3">
-                <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold text-base">Payment Recorded Successfully</h4>
-                  <p className="text-sm text-emerald-700 mt-1">
-                    Voucher <strong>{successResult.voucherRef}</strong> recorded for <strong>{Number(successResult.amount).toLocaleString()} ETB</strong>.
+                <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-bold text-sm">Disbursement Registered Successfully</h4>
+                  <p className="text-xs text-emerald-800 mt-1">
+                    Voucher <strong>{successResult.voucherRef}</strong> recorded for{' '}
+                    <strong>{Number(successResult.amount).toLocaleString()} ETB</strong>.
                   </p>
                   {successResult.triggeredAlert ? (
-                    <div className="mt-2.5 p-3 bg-emerald-100/70 rounded-xl border border-emerald-300 text-xs text-emerald-800 font-medium flex items-center space-x-2">
-                      <Send className="w-4 h-4 text-emerald-700" />
-                      <span>SMS notification was dispatched to executive managers!</span>
+                    <div className="mt-2.5 p-3 bg-emerald-100/90 rounded-xl border border-emerald-300 text-xs text-emerald-900 font-semibold flex items-center space-x-2">
+                      <Zap className="w-4 h-4 text-amber-600 shrink-0 animate-bounce" />
+                      <span>Executive managers were automatically alerted via on-premise SMS!</span>
                     </div>
                   ) : (
-                    <p className="text-xs text-emerald-600 mt-1">
-                      Payment is below the {(threshold / 1000000).toFixed(0)}M ETB threshold (no SMS trigger required).
+                    <p className="text-[11px] text-emerald-700 mt-1">
+                      Payment is below {(threshold / 1000000).toFixed(0)}M ETB threshold (no SMS trigger required).
                     </p>
                   )}
                 </div>
@@ -184,87 +237,139 @@ export const RecordPaymentPage: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
-                  Voucher / Reference No. *
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Voucher / PV Number *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. PV-2026-0145"
+                  placeholder="e.g. PV-2026-0098"
                   value={formData.voucherRef}
                   onChange={(e) => setFormData({ ...formData, voucherRef: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm font-mono font-medium focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Payment Date *
                 </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    required
-                    value={formData.paymentDate}
-                    onChange={(e) => setFormData({ ...formData, paymentDate: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
+                <input
+                  type="date"
+                  required
+                  value={formData.paymentDate}
+                  onChange={(e) => setFormData({ ...formData, paymentDate: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
+                />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
-                Payee / Beneficiary Name *
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Beneficiary / Payee Name *
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Ethiopian Agricultural Transformation Agency / ABC Supplier"
+                placeholder="e.g. Ethiopian Agricultural Transformation Agency (EATA) / Supplier"
                 value={formData.payeeName}
                 onChange={(e) => setFormData({ ...formData, payeeName: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
               />
+            </div>
+
+            {/* Amount Section with Quick Presets */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/80 border border-slate-200">
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  Payment Amount (ETB) *
+                </label>
+                <span className="text-[11px] font-semibold text-slate-500">
+                  Threshold: {(threshold / 1000000).toFixed(0)}M ETB
+                </span>
+              </div>
+
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-xs font-extrabold text-slate-700">
+                  ETB
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="1"
+                  required
+                  placeholder="e.g. 25000000"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  className="w-full pl-14 pr-4 py-3 rounded-xl border border-slate-300 text-base font-black text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-white"
+                />
+              </div>
+
+              {/* Quick Presets */}
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-semibold text-slate-500">Quick test:</span>
+                {[5_000_000, 15_000_000, 20_000_000, 25_000_000, 50_000_000].map((val) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setPresetAmount(val)}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors shadow-2xs"
+                  >
+                    {(val / 1000000).toFixed(0)}M
+                  </button>
+                ))}
+              </div>
+
+              {/* Dynamic Threshold Gauge Bar */}
+              <div className="mt-4 pt-3 border-t border-slate-200/80">
+                <div className="flex justify-between text-xs font-bold mb-1.5">
+                  <span className="text-slate-500">Threshold Progress</span>
+                  <span className={isHighValue ? 'text-amber-600 font-extrabold' : 'text-slate-700'}>
+                    {progressPercent}% of {(threshold / 1000000).toFixed(0)}M ETB
+                  </span>
+                </div>
+                <div className="w-full h-3 rounded-full bg-slate-200 overflow-hidden relative">
+                  <div
+                    className={`h-full transition-all duration-500 ${
+                      isHighValue
+                        ? 'bg-gradient-to-r from-amber-500 to-rose-500'
+                        : 'bg-emerald-500'
+                    }`}
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
-                  Payment Amount (ETB) *
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Budget Category *
                 </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-xs font-bold text-gray-600">
-                    ETB
-                  </span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="1"
-                    required
-                    placeholder="e.g. 25000000"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full pl-12 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
-                {numericAmount > 0 && (
-                  <p className="text-xs text-gray-700 mt-1">
-                    {numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ETB
-                  </p>
-                )}
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
+                >
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                   Payment Method *
                 </label>
                 <select
                   value={formData.paymentMethod}
                   onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
                 >
                   <option value="Bank Transfer">Bank Transfer (CBE / NBE)</option>
                   <option value="Cheque">Official Cheque</option>
@@ -275,150 +380,120 @@ export const RecordPaymentPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
-                Budget Category *
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
-                Remarks / Purpose
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                Purpose / Memo Notes
               </label>
               <textarea
                 rows={3}
-                placeholder="Contract reference, procurement batch notes, or project description..."
+                placeholder="Contract reference, procurement batch notes, project code, or supplier details..."
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all bg-slate-50/50"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3.5 px-6 rounded-xl font-semibold text-sm shadow-md transition-all flex items-center justify-center space-x-2 ${
+              className={`w-full py-4 px-6 rounded-2xl font-bold text-sm shadow-xl transition-all flex items-center justify-center space-x-2.5 ${
                 isHighValue
-                  ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/30'
+                  ? 'bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white shadow-amber-600/30'
                   : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30'
               } disabled:opacity-50`}
             >
               {loading ? (
-                <span>Recording Payment & Dispatching...</span>
+                <span>Processing Disbursement & Checking Alerts...</span>
               ) : isHighValue ? (
                 <>
-                  <Send className="w-4 h-4" />
-                  <span>Submit Payment & Trigger Manager SMS</span>
+                  <Send className="w-5 h-5 animate-pulse" />
+                  <span>Submit Payment & Fire Executive SMS Alert</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Record Payment</span>
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span>Save Disbursement</span>
                 </>
               )}
             </button>
           </form>
         </div>
 
-        {/* Live SMS Threshold Warning & Simulation Side-Card */}
-        <div className="space-y-6">
-          <div
-            className={`p-6 rounded-2xl border transition-all shadow-sm ${
-              isHighValue
-                ? 'bg-amber-50/70 border-amber-300'
-                : 'bg-white border-gray-200'
-            }`}
-          >
-            <div className="flex items-center space-x-3 mb-4">
-              <div
-                className={`p-2 rounded-xl ${
-                  isHighValue
-                    ? 'bg-amber-500 text-white animate-pulse'
-                    : 'bg-gray-100 text-gray-500'
-                }`}
-              >
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-base">Threshold Monitor</h3>
+        {/* Right Column: Realistic Phone Preview Card (5 Cols) */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Smartphone Simulator Mockup */}
+          <div className="bg-slate-900 rounded-[2.5rem] p-4 pt-6 pb-6 shadow-2xl border-4 border-slate-800 text-white relative max-w-sm mx-auto">
+            {/* Phone Speaker Notch */}
+            <div className="w-24 h-4 bg-slate-800 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <div className="w-3 h-3 rounded-full bg-slate-700" />
             </div>
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between py-1.5 border-b border-gray-100">
-                <span className="text-gray-500">Active Alert Rule:</span>
-                <span className="font-semibold text-gray-900">
-                  &ge; {threshold.toLocaleString()} ETB
-                </span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-gray-100">
-                <span className="text-gray-500">Entered Amount:</span>
-                <span
-                  className={`font-bold ${
-                    isHighValue ? 'text-amber-700' : 'text-gray-900'
-                  }`}
-                >
-                  {numericAmount.toLocaleString()} ETB
-                </span>
-              </div>
-              <div className="flex justify-between py-1.5">
-                <span className="text-gray-500">Alert Trigger Status:</span>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                    isHighValue
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {isHighValue ? '🚨 SMS TRIGGER ARMED' : 'Standard (No Alert)'}
-                </span>
+            {/* Phone Screen Status Bar */}
+            <div className="flex justify-between items-center text-[10px] text-slate-400 px-4 mb-4">
+              <span>9:41 AM</span>
+              <div className="flex items-center space-x-1.5">
+                <span>Ethio Telecom 4G</span>
+                <span className="font-bold">100%</span>
               </div>
             </div>
 
-            {/* Simulated Live SMS Message Preview */}
-            <div className="mt-6 pt-5 border-t border-gray-200">
-              <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
-                <Send className="w-3.5 h-3.5" /> Live SMS Preview
-              </p>
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-xl text-xs font-mono leading-relaxed border border-gray-800 shadow-inner">
-                {isHighValue ? (
+            {/* Message App Header */}
+            <div className="border-b border-slate-800 pb-3 mb-4 text-center">
+              <div className="w-10 h-10 rounded-full bg-emerald-600/30 text-emerald-400 flex items-center justify-center mx-auto mb-1 ring-2 ring-emerald-500/40">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <p className="font-extrabold text-xs text-white">MOA-FINANCE</p>
+              <p className="text-[10px] text-slate-400">On-Premise SMS Gateway</p>
+            </div>
+
+            {/* Chat Bubble Container */}
+            <div className="min-h-[160px] bg-slate-950/80 rounded-2xl p-4 border border-slate-800/80 space-y-3">
+              <div className="text-center text-[10px] text-slate-500">Today 9:41 AM</div>
+
+              {isHighValue ? (
+                <div className="bg-emerald-700 text-white p-3.5 rounded-2xl rounded-tl-xs text-xs font-sans leading-relaxed shadow-md">
+                  <div className="font-bold text-amber-300 flex items-center gap-1 mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span>MOA High-Value Payment Alert</span>
+                  </div>
                   <p>
-                    <span className="text-emerald-400 font-bold">[MOA Payment Alert]</span>
-                    <br />
-                    High-value payment of ETB{' '}
-                    <span className="text-yellow-300 font-bold">
+                    Payment of ETB{' '}
+                    <strong className="underline decoration-amber-300 underline-offset-2">
                       {numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                    </span>{' '}
+                    </strong>{' '}
                     issued to "{formData.payeeName || '[Beneficiary]'}" (Ref:{' '}
-                    {formData.voucherRef || 'PV-XXXX'}) for {formData.category}.
+                    {formData.voucherRef || 'PV-2026-XXXX'}).
                   </p>
-                ) : (
-                  <p className="text-gray-400 italic">
-                    Amounts under {threshold.toLocaleString()} ETB will not trigger SMS alerts.
+                  <p className="mt-1 text-[11px] text-emerald-200">
+                    Category: {formData.category} &bull; Date: {formData.paymentDate}
                   </p>
-                )}
-              </div>
-              <p className="text-[11px] text-gray-700 mt-2 font-medium">
-                Sent to all active executive phone numbers registered in Settings.
-              </p>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-xs text-slate-500 italic">
+                  Amounts under {(threshold / 1000000).toFixed(0)}M ETB do not trigger SMS alerts.
+                  <br />
+                  <span className="text-[11px] text-emerald-400 mt-2 inline-block font-mono">
+                    Type &ge; {(threshold / 1000000).toFixed(0)},000,000 to preview
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Phone Footer Info */}
+            <div className="mt-4 pt-3 border-t border-slate-800/80 text-center text-[10px] text-slate-400">
+              Directly delivered to Minister & Directors
             </div>
           </div>
 
-          {/* System Info card */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 text-xs text-gray-600 space-y-2">
-            <h4 className="font-bold text-gray-800 flex items-center gap-1.5">
-              <Building2 className="w-4 h-4 text-emerald-600" /> Ministry On-Premise Gateway
+          {/* Alert Protocol Card */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-xs space-y-3">
+            <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-emerald-600" />
+              <span>MOA Executive Alert Policy</span>
             </h4>
-            <p>
-              Connected via internal gateway service. Alerts are delivered instantly to managerial devices without third-party cloud dependencies.
+            <p className="text-xs text-slate-600 leading-relaxed">
+              In accordance with Ministry financial protocols, disbursements over{' '}
+              <strong>{(threshold / 1000000).toFixed(0)} Million ETB</strong> trigger instant SMS
+              notifications to executive leaders to maintain real-time financial oversight.
             </p>
           </div>
         </div>
@@ -426,4 +501,3 @@ export const RecordPaymentPage: React.FC = () => {
     </div>
   );
 };
-
